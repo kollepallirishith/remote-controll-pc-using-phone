@@ -3,62 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remote Keyboard and Touchpad</title>
+    <title>Remote Keyboard & Touchpad</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 0;
-            padding: 0;
+            padding: 20px;
+        }
+        .keyboard {
+            margin-top: 20px;
         }
         .touchpad {
-            width: 100%;
+            width: 300px;
             height: 300px;
             background-color: #f0f0f0;
             border: 2px solid #ccc;
-            margin-top: 20px;
+            margin: 20px auto;
+            touch-action: none; /* Disable browser scrolling */
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>Remote Keyboard and Touchpad</h1>
-    <textarea id="keyboard" rows="5" placeholder="Type here..." autofocus></textarea>
-    <div id="touchpad" class="touchpad"></div>
+
+    <h1>Remote Keyboard & Touchpad</h1>
+
+    <div class="touchpad" id="touchpad"></div>
+
+    <div class="keyboard">
+        <input type="text" id="keyboardInput" placeholder="Type something here" style="width: 80%;">
+        <button id="sendKey">Send</button>
+    </div>
 
     <script>
-       const ws = new WebSocket('ws://10.12.118.16:8081');
-        
+        const ws = new WebSocket('ws://10.12.118.16:8080');
 
         ws.onopen = () => {
-            console.log('Connected to the server');
+            console.log("Connected to WebSocket server");
         };
 
-        ws.onmessage = (message) => {
-            console.log(`Server says: ${message.data}`);
+        ws.onerror = (error) => {
+            console.error("WebSocket Error: ", error);
         };
 
         ws.onclose = () => {
-            console.log('Connection closed');
+            console.log("WebSocket connection closed");
         };
 
-        // Send keyboard input to the server
-        const keyboard = document.getElementById('keyboard');
-        keyboard.addEventListener('input', () => {
-            ws.send(JSON.stringify({ type: 'keyboard', key: keyboard.value }));
-            keyboard.value = ''; // Clear the input
+        // Keyboard Input
+        document.getElementById("sendKey").addEventListener("click", () => {
+            const key = document.getElementById("keyboardInput").value;
+            const data = {
+                type: 'keyboard',
+                key: key
+            };
+            ws.send(JSON.stringify(data));
+            document.getElementById("keyboardInput").value = ''; // Clear input after sending
         });
 
-        // Touchpad input (basic mouse move simulation)
-        const touchpad = document.getElementById('touchpad');
-        touchpad.addEventListener('mousemove', (e) => {
-            const x = e.movementX;
-            const y = e.movementY;
-            ws.send(JSON.stringify({ type: 'touchpad', x: x, y: y }));
+        // Touchpad Handling
+        const touchpad = document.getElementById("touchpad");
+        let lastX, lastY;
+
+        touchpad.addEventListener('touchstart', (e) => {
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
         });
 
+        touchpad.addEventListener('touchmove', (e) => {
+            const currentX = e.touches[0].clientX;
+            const currentY = e.touches[0].clientY;
+
+            const deltaX = currentX - lastX;
+            const deltaY = currentY - lastY;
+
+            const data = {
+                type: 'touchpad',
+                x: deltaX,
+                y: deltaY
+            };
+            ws.send(JSON.stringify(data));
+
+            lastX = currentX;
+            lastY = currentY;
+
+            e.preventDefault(); // Prevent browser from interpreting touch gestures
+        });
+
+        // Handle Mouse Click
         touchpad.addEventListener('click', () => {
-            ws.send(JSON.stringify({ type: 'click' }));
+            const data = {
+                type: 'click'
+            };
+            ws.send(JSON.stringify(data));
         });
     </script>
+
 </body>
 </html>
