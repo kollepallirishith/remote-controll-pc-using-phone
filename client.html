@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Keyboard and Touchpad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .touchpad {
+            width: 100%;
+            height: 300px;
+            background-color: #f0f0f0;
+            border: 2px solid #ccc;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Remote Keyboard and Touchpad</h1>
+    <textarea id="keyboard" rows="5" placeholder="Type here..." autofocus></textarea>
+    <div id="touchpad" class="touchpad"></div>
+
+    <script>
+       const ws = new WebSocket('ws://10.12.118.16:8080');
+        
+
+        ws.onopen = () => {
+            console.log('Connected to the server');
+        };
+
+        ws.onmessage = (message) => {
+            console.log(`Server says: ${message.data}`);
+        };
+
+        ws.onclose = () => {
+            console.log('Connection closed');
+        };
+
+        // Send keyboard input to the server
+        const keyboard = document.getElementById('keyboard');
+        keyboard.addEventListener('input', () => {
+            ws.send(JSON.stringify({ type: 'keyboard', key: keyboard.value }));
+            keyboard.value = ''; // Clear the input
+        });
+
+        // Touchpad input (basic mouse move simulation)
+        const touchpad = document.getElementById('touchpad');
+        touchpad.addEventListener('mousemove', (e) => {
+            const x = e.movementX;
+            const y = e.movementY;
+            ws.send(JSON.stringify({ type: 'touchpad', x: x, y: y }));
+        });
+
+        touchpad.addEventListener('click', () => {
+            ws.send(JSON.stringify({ type: 'click' }));
+        });
+    </script>
+</body>
+</html>
