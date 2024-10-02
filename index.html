@@ -4,21 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Touch Tracker</title>
+    <style>
+        body {
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+        #touchArea {
+            border: 2px solid black;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #coords {
+            font-size: 1.5em;
+        }
+    </style>
 </head>
 <body>
-    <h1>Touch the screen to send coordinates</h1>
-    <p>Touch coordinates: <span id="coords">None</span></p>
+    <div id="touchArea">
+        <p>Touch coordinates: <span id="coords">None</span></p>
+    </div>
 
     <script>
-        document.body.addEventListener('touchmove', function(event) {
-            let touch = event.touches[0]; // Get first touch point
-            let x = touch.clientX;
-            let y = touch.clientY;
+        // Get the touch area
+        const touchArea = document.getElementById('touchArea');
+        const coordsText = document.getElementById('coords');
 
-            // Display coordinates on the webpage
-            document.getElementById('coords').innerText = `X: ${x}, Y: ${y}`;
+        // Listen for touch events within the touch area
+        touchArea.addEventListener('touchmove', function(event) {
+            event.preventDefault();  // Prevents default scrolling behavior
+            
+            let touch = event.touches[0];  // Get the first touch point
+            let x = touch.clientX;  // X-coordinate of touch
+            let y = touch.clientY;  // Y-coordinate of touch
 
-            // Post coordinates to the Python server
+            // Display the coordinates in the HTML element
+            coordsText.innerText = `X: ${x}, Y: ${y}`;
+
+            // Send the coordinates to the server
             fetch('/post_touch', {
                 method: 'POST',
                 headers: {
@@ -30,7 +59,7 @@
                 })
             })
             .then(response => response.json())
-            .then(data => console.log('Success:', data))
+            .then(data => console.log('Server Response:', data))
             .catch((error) => console.error('Error:', error));
         });
     </script>
