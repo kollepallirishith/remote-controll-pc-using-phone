@@ -44,7 +44,7 @@
             coordsText.innerText = `X: ${x}, Y: ${y}`;
 
             // Send the coordinates to the Python server using fetch
-            fetch('http://localhost:5000/post_touch', {
+            fetch('http://10.12.118.16:5000/post_touch', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
