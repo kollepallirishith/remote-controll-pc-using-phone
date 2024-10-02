@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Touch Screen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            font-size: 2em;
+        }
+        p {
+            font-size: 1.2em;
+        }
+        #touch-area {   
+            width: 100vw;
+            height: 60vh;
+            border: 2px solid black;
+            margin: 0 auto;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+        #text-input {
+            width: 80%;
+            padding: 10px;
+            font-size: 1em;
+            margin: 20px;
+        }
+    </style>
+    <script>
+        let lastTouchX = 0;
+        let lastTouchY = 0;
+
+        function sendTouchData(deltaX, deltaY) {
+            fetch('/touch_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ delta_x: deltaX, delta_y: deltaY }),
+            }).then(response => response.json())
+              .then(data => console.log('Success:', data))
+              .catch(error => console.error('Error:', error));
+        }
+
+        function sendClick(endpoint) {
+            fetch(endpoint, {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => console.log('Click Success:', data))
+              .catch(error => console.error('Click Error:', error));
+        }
+
+        function sendKeyboardInput() {
+            const text = document.getElementById('text-input').value;
+            fetch('/keyboard_input', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: text }),
+            }).then(response => response.json())
+              .then(data => console.log('Keyboard Input Success:', data))
+              .catch(error => console.error('Keyboard Input Error:', error));
+        }
+
+        function sendBackspace() {
+            fetch('/backspace', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => console.log('Backspace Success:', data))
+              .catch(error => console.error('Backspace Error:', error));
+        }
+
+        function sendEnter() {
+            fetch('/enter', {
+                method: 'POST'
+            }).then(response => response.json())
+              .then(data => console.log('Enter Success:', data))
+              .catch(error => console.error('Enter Error:', error));
+        }
+
+        window.addEventListener('touchstart', function(event) {
+            let touch = event.touches[0];
+            lastTouchX = touch.clientX;
+            lastTouchY = touch.clientY;
+        });
+    
+        window.addEventListener('touchmove', function(event) {
+            let touch = event.touches[0];
+            let deltaX = touch.clientX - lastTouchX;
+            let deltaY = touch.clientY - lastTouchY;
+    
+            sendTouchData(deltaX, deltaY);
+    
+            // Update last touch positions
+            lastTouchX = touch.clientX;
+            lastTouchY = touch.clientY;
+        });
+    
+        window.addEventListener('touchend', function(event) {
+            // Reset last touch positions on touch end
+            lastTouchX = 0;
+            lastTouchY = 0;
+        });
+    </script>
+</head>
+<body>
+    <h1>Touchpad</h1>
+    <p>Use the area below as your touchpad to control the PC mouse.</p>
+    <div id="touch-area"></div>
+
+    <!-- Left and Right Click Buttons -->
+    <button onclick="sendClick('/left_click')">Left Click</button>
+    <button onclick="sendClick('/right_click')">Right Click</button>
+
+    <!-- Keyboard Input Area -->
+    <input type="text" id="text-input" placeholder="Type here and press Enter" />
+    <button onclick="sendKeyboardInput()">Send Text</button>
+    
+    <!-- Backspace and Enter Buttons -->
+    <button onclick="sendBackspace()">Backspace</button>
+    <button onclick="sendEnter()">Enter</button>
+</body>
+</html>
