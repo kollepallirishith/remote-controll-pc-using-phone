@@ -43,20 +43,17 @@
 
             coordsText.innerText = `X: ${x}, Y: ${y}`;
 
-            fetch('http://192.168.0.x:5000/post_touch', {  // Use your IP here
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    x: x,
-                    y: y
-                })
-            })
-            .then(response => response.json())
-            .then(data => console.log('Server Response:', data))
-            .catch((error) => console.error('Error:', error));
-        });
+            fetch('http://localhost:5000/post_touch', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        x: x,
+        y: y
+    })
+})
+
     </script>
 </body>
 </html>
