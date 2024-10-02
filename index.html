@@ -32,23 +32,18 @@
     </div>
 
     <script>
-        // Get the touch area
         const touchArea = document.getElementById('touchArea');
         const coordsText = document.getElementById('coords');
 
-        // Listen for touch events within the touch area
         touchArea.addEventListener('touchmove', function(event) {
-            event.preventDefault();  // Prevents default scrolling behavior
-            
-            let touch = event.touches[0];  // Get the first touch point
-            let x = touch.clientX;  // X-coordinate of touch
-            let y = touch.clientY;  // Y-coordinate of touch
+            event.preventDefault();  
+            let touch = event.touches[0];  
+            let x = touch.clientX;  
+            let y = touch.clientY;  
 
-            // Display the coordinates in the HTML element
             coordsText.innerText = `X: ${x}, Y: ${y}`;
 
-            // Send the coordinates to the server
-            fetch('/post_touch', {
+            fetch('http://192.168.0.x:5000/post_touch', {  // Use your IP here
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
