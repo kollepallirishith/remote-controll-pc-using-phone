@@ -49,14 +49,17 @@
             let x = touch.clientX;
             let y = touch.clientY;
 
-            fetch(`${serverUrl}/mouse`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ x, y }),
-            }).catch(err => console.error('Error sending touch data:', err));
-        });
+           fetch('http://10.12.118.16:5000/mouse', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        x: x,
+        y: y
+    })
+})
+
 
         // Send keyboard input to the server
         keyboardInput.addEventListener('input', function() {
