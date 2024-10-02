@@ -3,72 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Touch Tracker</title>
+    <title>PC Controller</title>
     <style>
         body {
-            height: 100vh;
-            margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            height: 100vh;
             font-family: Arial, sans-serif;
+            margin: 0;
         }
         #touchArea {
             border: 2px solid black;
             width: 100%;
-            height: 100%;
+            height: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
+            margin-bottom: 20px;
         }
-        #coords {
+        #keyboardInput {
+            width: 80%;
+            height: 40px;
             font-size: 1.5em;
+            text-align: center;
         }
     </style>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
 </head>
 <body>
     <div id="touchArea">
-        <p>Touch coordinates: <span id="coords">None</span></p>
+        <p>Touchpad</p>
     </div>
+    <input type="text" id="keyboardInput" placeholder="Type here..." autofocus/>
 
     <script>
-        // Firebase configuration with your project details
-        const firebaseConfig = {
-            apiKey: "AIzaSyAm2GbAFGOX2OAPmlv5Renq4U8KZNgrWgI",
-            authDomain: "remotecontrol-25342.firebaseapp.com",
-            databaseURL: "https://remotecontrol-25342-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "remotecontrol-25342",
-            storageBucket: "remotecontrol-25342.appspot.com",
-            messagingSenderId: "1005530977987",
-            appId: "1:1005530977987:web:your-app-id"  // Replace this with your actual app ID if you have it
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
         const touchArea = document.getElementById('touchArea');
-        const coordsText = document.getElementById('coords');
+        const keyboardInput = document.getElementById('keyboardInput');
+        const serverUrl = 'http://10.12.118.16:5000';  // Replace with your PC's IP address
 
+        // Send touch coordinates to the server
         touchArea.addEventListener('touchmove', function(event) {
-            event.preventDefault();  
-            let touch = event.touches[0];  
-            let x = touch.clientX;  
-            let y = touch.clientY;  
+            event.preventDefault();
+            let touch = event.touches[0];
+            let x = touch.clientX;
+            let y = touch.clientY;
 
-            coordsText.innerText = `X: ${x}, Y: ${y}`;
+            fetch(`${serverUrl}/mouse`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ x, y }),
+            }).catch(err => console.error('Error sending touch data:', err));
+        });
 
-            // Write touch coordinates to Firebase Realtime Database
-            firebase.database().ref('touches/').push({
-                x: x,
-                y: y,
-                timestamp: Date.now()
-            })
-            .then(() => console.log('Coordinates saved to Firebase'))
-            .catch(error => console.error('Error saving to Firebase:', error));
+        // Send keyboard input to the server
+        keyboardInput.addEventListener('input', function() {
+            let inputText = keyboardInput.value;
+            
+            fetch(`${serverUrl}/keyboard`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ inputText }),
+            }).catch(err => console.error('Error sending keyboard data:', err));
+
+            // Clear input field
+            keyboardInput.value = '';
         });
     </script>
 </body>
