@@ -13,12 +13,12 @@ This project allows you to control your PC's mouse and keyboard remotely using y
 - **pyautogui**: A Python library for programmatically controlling the mouse and keyboard.
 - **HTML/CSS/JavaScript**: For the web interface.
 
-##Install Required Packages
+## Install Required Packages
 Make sure you have Flask and pyautogui installed. You can install them using pip:
 
 
 ```pip install Flask pyautogui```
-##Run the Application
+## Run the Application
 Start the Flask application by running:
 ```python app.py```
 
