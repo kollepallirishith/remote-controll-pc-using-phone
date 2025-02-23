@@ -75,7 +75,7 @@ def touch_data():
         return jsonify({"status": "success", "message": "Touch data received"}), 200
     except Exception as e:
         print(f"Error: {e}")
-        return jsonify({"status": "error", "message": "Server error"}), 500
+        return jsonify({"status": "error", "message": "Server errorrr"}), 500
 
 # Left click route
 @app.route('/left_click', methods=['POST'])
